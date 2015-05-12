@@ -1,6 +1,6 @@
 module WCC::API
   class BaseQuery
-    attr_reader :scope
+    attr_reader :scope, :paging
     attr_accessor :limit, :offset
     attr_accessor :filter
 
@@ -22,8 +22,9 @@ module WCC::API
       raise NotImplementedError
     end
 
-    def initialize(params, scope: default_scope)
+    def initialize(params, scope: default_scope, paging: true)
       @scope = scope
+      @paging = paging
       set_defaults
       permitted_keys.each do |key|
         self.public_send("#{key}=", params[key]) if params.has_key?(key)
@@ -39,9 +40,13 @@ module WCC::API
     end
 
     def paged(scope=self.scope)
-      scope
-        .limit(limit)
-        .offset(offset)
+      if paging
+        scope
+          .limit(limit)
+          .offset(offset)
+      else
+        scope
+      end
     end
 
     def ordered(scope=self.scope)

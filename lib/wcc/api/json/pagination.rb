@@ -10,9 +10,11 @@ module WCC::API::JSON
     def to_builder
       Jbuilder.new do |json|
         json.total query.total
-        json.size query.size
-        json.limit query.limit
-        json.offset query.offset
+        if query.paging
+          json.size query.size
+          json.limit query.limit
+          json.offset query.offset
+        end
         json.order_by query.order_by if query.respond_to?(:order_by)
         json.sort query.sort if query.respond_to?(:sort)
         json.filter query.filter
