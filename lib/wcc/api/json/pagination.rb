@@ -33,20 +33,22 @@ module WCC::API::JSON
     private
 
     def has_previous_page?
-      query.offset - query.limit >= 0
+      query.paging && query.offset - query.limit >= 0
     end
 
     def has_next_page?
-      query.offset + query.limit < query.total
+      query.paging && query.offset + query.limit < query.total
     end
 
     def base_url_params
       @base_url_params ||= {
-        limit: query.limit,
-        offset: query.offset,
         filter: query.filter,
         only_path: false
       }.tap do |params|
+        if query.paging
+          params[:limit] = query.limit
+          params[:offset] = query.offset
+        end
         params[:order_by] = query.order_by if query.respond_to?(:order_by)
         params[:sort] = query.sort if query.respond_to?(:sort)
       end
