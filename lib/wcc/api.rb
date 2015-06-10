@@ -13,5 +13,6 @@ end
 
 require 'wcc/api/base_query'
 require 'wcc/api/json'
+require 'wcc/api/controller_helpers'
 require 'wcc/api/view_helpers'
 
