@@ -27,15 +27,15 @@ end
 RSpec.shared_examples_for "cached collection resource" do |max_age|
   include_examples "cached resource defaults"
 
-  it "does not set last modified" do
-    expect(response.last_modified).to be_nil
+  it "sets max age" do
+    expect(response.cache_control[:max_age]).to eq(max_age.to_s)
   end
 
   it "sets must_revalidate: true" do
     expect(response.cache_control[:must_revalidate]).to be_truthy
   end
 
-  it "sets max age" do
-    expect(response.cache_control[:max_age]).to eq(max_age.to_s)
+  it "does not set last modified" do
+    expect(response.last_modified).to be_nil
   end
 end
