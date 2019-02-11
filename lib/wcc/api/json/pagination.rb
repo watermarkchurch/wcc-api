@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WCC::API::JSON
   class Pagination
     attr_reader :query, :url_for
@@ -19,12 +21,12 @@ module WCC::API::JSON
         json.sort query.sort if query.respond_to?(:sort)
         json.filter query.filter
         json._links do
-          json.self url_for.(base_url_params)
+          json.self url_for.call(base_url_params)
           if has_previous_page?
-            json.previous url_for.(base_url_params.merge(offset: query.offset - query.limit))
+            json.previous url_for.call(base_url_params.merge(offset: query.offset - query.limit))
           end
           if has_next_page?
-            json.next url_for.(base_url_params.merge(offset: query.offset + query.limit))
+            json.next url_for.call(base_url_params.merge(offset: query.offset + query.limit))
           end
         end
       end
@@ -41,17 +43,18 @@ module WCC::API::JSON
     end
 
     def base_url_params
-      @base_url_params ||= {
-        filter: query.filter,
-        only_path: false
-      }.tap do |params|
-        if query.paging
-          params[:limit] = query.limit
-          params[:offset] = query.offset
+      @base_url_params ||=
+        {
+          filter: query.filter,
+          only_path: false
+        }.tap do |params|
+          if query.paging
+            params[:limit] = query.limit
+            params[:offset] = query.offset
+          end
+          params[:order_by] = query.order_by if query.respond_to?(:order_by)
+          params[:sort] = query.sort if query.respond_to?(:sort)
         end
-        params[:order_by] = query.order_by if query.respond_to?(:order_by)
-        params[:sort] = query.sort if query.respond_to?(:sort)
-      end
     end
   end
 end

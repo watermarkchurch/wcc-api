@@ -113,7 +113,7 @@ module WCC::API
         return unless collection_response?
 
         {
-          skip: page_items.length + skip,
+          skip: page_items.length + skip
         }
       end
     end

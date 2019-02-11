@@ -15,7 +15,7 @@ module WCC::API
       @options = options
       @query_defaults = {}
       @headers = {
-        'Accept' => 'application/json',
+        'Accept' => 'application/json'
       }.merge(headers || {}).freeze
       @response_class = options[:response_class] || DefaultResponse
     end
@@ -33,7 +33,7 @@ module WCC::API
 
     ADAPTERS = {
       http: ['http', '> 1.0', '< 3.0'],
-      typhoeus: ['typhoeus', '~> 1.0'],
+      typhoeus: ['typhoeus', '~> 1.0']
     }.freeze
 
     # This method is long due to the case statement,

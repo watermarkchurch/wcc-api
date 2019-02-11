@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'wcc'
 require 'wcc/api/version'
 
