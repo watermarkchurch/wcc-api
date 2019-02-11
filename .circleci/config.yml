@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/ruby:2.2.0-node
+      - image: circleci/ruby:2.3.3-node
     steps:
       - checkout
       # Restore bundle cache
