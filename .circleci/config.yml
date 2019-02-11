@@ -7,7 +7,7 @@ jobs:
       - checkout
       # Restore bundle cache
       - restore_cache:
-          key: gems-{{ checksum "Gemfile.lock" }}
+          key: gem-{{ checksum "wcc-api.gemspec" }}
 
       # copy env
       - run: cp .env.example .env
@@ -17,7 +17,7 @@ jobs:
 
       # Store bundle cache
       - save_cache:
-          key: gems-{{ checksum "Gemfile.lock" }}
+          key: gem-{{ checksum "wcc-api.gemspec" }}
           paths:
             - /tmp/vendor/bundle
 
