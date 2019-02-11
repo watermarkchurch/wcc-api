@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'wcc'
 require_relative 'rest_client/response'
 
 module WCC::API
