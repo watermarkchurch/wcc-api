@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module WCC::API
   class BaseQuery
-    attr_reader :scope, :paging
-    attr_accessor :limit, :offset
+    attr_reader :scope, :paging, :limit, :offset
     attr_accessor :filter
 
     MAX_LIMIT = 50
@@ -15,7 +16,7 @@ module WCC::API
     end
 
     def permitted_keys
-      %i(limit offset filter)
+      %i[limit offset filter]
     end
 
     def default_scope
@@ -27,11 +28,11 @@ module WCC::API
       @paging = paging
       set_defaults
       permitted_keys.each do |key|
-        self.public_send("#{key}=", params[key]) if params.has_key?(key)
+        public_send("#{key}=", params[key]) if params.key?(key)
       end
     end
 
-    def call(scope=self.scope)
+    def call(scope = self.scope)
       scope = scope.dup
       scope = paged(scope)
       scope = ordered(scope)
@@ -39,7 +40,7 @@ module WCC::API
       scope
     end
 
-    def paged(scope=self.scope)
+    def paged(scope = self.scope)
       if paging
         scope
           .limit(limit)
@@ -49,11 +50,11 @@ module WCC::API
       end
     end
 
-    def ordered(scope=self.scope)
+    def ordered(scope = self.scope)
       scope
     end
 
-    def filtered(scope=self.scope)
+    def filtered(scope = self.scope)
       scope
     end
 
@@ -65,7 +66,7 @@ module WCC::API
 
     def limit=(new_limit)
       new_limit = new_limit.to_i
-      @limit = (new_limit > MAX_LIMIT) ? MAX_LIMIT : new_limit
+      @limit = new_limit > MAX_LIMIT ? MAX_LIMIT : new_limit
     end
 
     def offset=(new_offset)
@@ -85,4 +86,3 @@ module WCC::API
     end
   end
 end
-

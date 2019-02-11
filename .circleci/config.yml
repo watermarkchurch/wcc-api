@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby:2.3.3-node
+    steps:
+      - checkout
+      # Restore bundle cache
+      - restore_cache:
+          key: gem-{{ checksum "wcc-api.gemspec" }}
+
+      # copy env
+      - run: cp .env.example .env
+
+      # Bundle install dependencies
+      - run: bundle install --path /tmp/vendor/bundle
+
+      # Store bundle cache
+      - save_cache:
+          key: gem-{{ checksum "wcc-api.gemspec" }}
+          paths:
+            - /tmp/vendor/bundle
+
+      # run rubocop
+      - type: shell
+        command: |
+          bundle exec rubocop
+
+      # Run rspec in parallel
+      - type: shell
+        command: |
+          bundle exec rspec --profile 10 \
+                            --format RspecJunitFormatter \
+                            --out test_results/rspec.xml \
+                            --format documentation \
+                            --order rand \
+                            $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+
+      # Save test results for timing analysis
+      - store_test_results:
+          path: test_results
