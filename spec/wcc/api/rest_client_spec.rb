@@ -99,15 +99,15 @@ RSpec.describe WCC::API::RestClient do
         it 'can query entries with query param' do
           stub_request(:get, 'https://cdn.contentful.com/spaces/1234/entries')
             .with(query: {
-                    'content_type' => 'menuButton',
-                    'fields.text' => 'Ministries'
-                  })
+              'content_type' => 'menuButton',
+              'fields.text' => 'Ministries'
+            })
             .to_return(body: load_fixture('contentful/entries.json'))
 
           # act
           resp = client.get('entries',
-                            content_type: 'menuButton',
-                            'fields.text' => 'Ministries')
+            content_type: 'menuButton',
+            'fields.text' => 'Ministries')
 
           # assert
           resp.assert_ok!
