@@ -54,7 +54,7 @@ Style/NumericPredicate:
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 
 Layout/AlignHash:

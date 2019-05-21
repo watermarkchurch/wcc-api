@@ -106,8 +106,8 @@ RSpec.describe WCC::API::RestClient do
 
           # act
           resp = client.get('entries',
-            content_type: 'menuButton',
-            'fields.text' => 'Ministries')
+                            content_type: 'menuButton',
+                            'fields.text' => 'Ministries')
 
           # assert
           resp.assert_ok!
