@@ -3,6 +3,7 @@
 require 'wcc'
 require_relative 'rest_client/response'
 require_relative 'rest_client/builder'
+require_relative 'active_record_shim'
 
 module WCC::API
   class RestClient
@@ -93,23 +94,25 @@ module WCC::API
     end
 
     class Resource
-      attr_reader :client, :model, :options
+      attr_reader :client, :endpoint, :model, :options
 
-      def initialize(client, model, options)
+      def initialize(client, endpoint, model, options)
         @client = client
+        @endpoint = endpoint
         @model = model
         @options = options
       end
 
       def find(id)
-        resp = client.get("#{model.endpoint}/#{id}")
+        resp = client.get("#{endpoint}/#{id}")
         resp.assert_ok!
-        model.new(resp.body[model.key], resp.headers.freeze)
+        body = options[:key] ? resp.body[options[:key]] : resp.body
+        model.new(body, resp.headers.freeze)
       end
 
       def list(**filters)
         query = extract_params(filters)
-        query = query.merge!(apply_filters(filters, model.filters))
+        query = query.merge!(apply_filters(filters, options[:filters]))
         resp = client.get(model.endpoint, query)
         resp.assert_ok!
         resp.items.map { |s| model.new(s) }
