@@ -55,6 +55,7 @@ module WCC::API
 
       def next_page?
         return false unless collection_response?
+        return false if count.nil?
 
         page_items.length + skip < count
       end
