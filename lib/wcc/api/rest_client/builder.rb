@@ -35,9 +35,11 @@ module WCC::API
           end
 
           resources.each do |(endpoint, options)|
-            define_method endpoint do
-              instance_variable_get("@#{endpoint}") ||
-                instance_variable_set("@#{endpoint}", 
+            attr_name = options[:attribute] || endpoint.downcase
+
+            define_method attr_name do
+              instance_variable_get("@#{attr_name}") ||
+                instance_variable_set("@#{attr_name}", 
                   (self.class.const_get("Resource") || WCC::API::RestClient::Resource)
                     .new(self, endpoint, options[:model], @options.merge(options))
                 )

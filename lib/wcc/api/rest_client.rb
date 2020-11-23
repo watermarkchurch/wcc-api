@@ -103,8 +103,9 @@ module WCC::API
         @options = options
       end
 
-      def find(id)
-        resp = client.get("#{endpoint}/#{id}")
+      def find(id, query = {})
+        query = (options[:query] || {}).merge(query)
+        resp = client.get("#{endpoint}/#{id}", query)
         resp.assert_ok!
         body = options[:key] ? resp.body[options[:key]] : resp.body
         model.new(body, resp.headers.freeze)
@@ -112,6 +113,7 @@ module WCC::API
 
       def list(**filters)
         query = extract_params(filters)
+        query = (options[:query] || {}).merge(query)
         query = query.merge!(apply_filters(filters, options[:filters]))
         resp = client.get(model.endpoint, query)
         resp.assert_ok!
