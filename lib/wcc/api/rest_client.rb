@@ -44,6 +44,16 @@ module WCC::API
         get_http(url, query))
     end
 
+    def post(path, body = {})
+      url = URI.join(@api_url, path)
+
+      @response_class.new(self,
+        { url: url },
+        post_http(url,
+          body.to_json,
+          headers: { 'Content-Type': 'application/json' }))
+    end
+
     ADAPTERS = {
       faraday: ['faraday', '~> 0.9'],
       typhoeus: ['typhoeus', '~> 1.0']
@@ -89,6 +99,15 @@ module WCC::API
       q = q.merge(query) if query
 
       resp = @adapter.get(url, q, headers)
+
+      resp = get_http(resp.headers['location'], nil, headers) if [301, 302, 307].include?(resp.status) && !@options[:no_follow_redirects]
+      resp
+    end
+
+    def post_http(url, body, headers: {})
+      headers = @headers.merge(headers || {})
+
+      resp = @adapter.post(url, body, headers)
 
       resp = get_http(resp.headers['location'], nil, headers) if [301, 302, 307].include?(resp.status) && !@options[:no_follow_redirects]
       resp

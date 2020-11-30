@@ -246,6 +246,21 @@ RSpec.describe WCC::API::RestClient do
                    ])
         end
       end
+
+      describe 'post' do
+        it 'performs a post with body' do
+          stub_request(:post, 'https://cdn.contentful.com/spaces/1234/entries')
+            .with(body: '{"test":"data"}')
+            .to_return(status: 204)
+
+          # act
+          resp = client.post('entries', { 'test' => 'data' })
+
+          # assert
+          resp.assert_ok!
+          expect(resp.status).to eq(204)
+        end
+      end
     end
   end
 end

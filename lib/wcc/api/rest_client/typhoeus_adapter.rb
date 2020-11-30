@@ -17,13 +17,11 @@ class WCC::API::RestClient::TyphoeusAdapter
     )
   end
 
-  def post(url, body, headers = {}, proxy = {})
-    raise NotImplementedError, 'Proxying Not Yet Implemented' if proxy[:host]
-
+  def post(url, body, headers = {})
     Response.new(
       Typhoeus.post(
         url,
-        body: body.to_json,
+        body: body.is_a?(String) ? body : body.to_json,
         headers: headers
       )
     )
