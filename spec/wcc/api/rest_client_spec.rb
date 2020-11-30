@@ -36,21 +36,6 @@ RSpec.describe WCC::API::RestClient do
       end.to raise_error(ArgumentError)
     end
 
-    it 'loads proc as adapter' do
-      described_class::ADAPTERS = {}.freeze
-      resp = double(body: 'test body', code: 200)
-
-      # act
-      client = described_class.new(
-        api_url: 'https://cdn.contentful.com',
-        adapter: proc { resp }
-      )
-      resp = client.get('http://asdf.com')
-
-      # assert
-      expect(resp.raw_body).to eq('test body')
-    end
-
     it 'fails to load when adapter is not invokeable' do
       described_class::ADAPTERS = {}.freeze
 

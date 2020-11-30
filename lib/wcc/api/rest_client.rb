@@ -45,12 +45,10 @@ module WCC::API
     end
 
     ADAPTERS = {
-      http: ['http', '> 1.0', '< 3.0'],
+      faraday: ['faraday', '~> 0.9'],
       typhoeus: ['typhoeus', '~> 1.0']
     }.freeze
 
-    # This method is long due to the case statement,
-    # not really a better way to do it
     def self.load_adapter(adapter)
       case adapter
       when nil
@@ -64,16 +62,19 @@ module WCC::API
         end
         raise ArgumentError, 'Unable to load adapter!  Please install one of '\
           "#{ADAPTERS.values.map(&:join).join(',')}"
-      when :http
-        require_relative 'rest_client/http_adapter'
-        HttpAdapter.new
+      when :faraday
+        require 'faraday'
+        ::Faraday.new do |faraday|
+          faraday.response :logger, (Rails.logger if defined?(Rails)), { headers: false, bodies: false }
+          faraday.adapter :net_http
+        end
       when :typhoeus
         require_relative 'rest_client/typhoeus_adapter'
         TyphoeusAdapter.new
       else
-        unless adapter.respond_to?(:call)
+        unless adapter.respond_to?(:get)
           raise ArgumentError, "Adapter #{adapter} is not invokeable!  Please "\
-            "pass a proc or use one of #{ADAPTERS.keys}"
+            "pass use one of #{ADAPTERS.keys} or create a Faraday-compatible adapter"
         end
         adapter
       end
@@ -81,15 +82,15 @@ module WCC::API
 
     private
 
-    def get_http(url, query, headers = {}, proxy = {})
+    def get_http(url, query, headers = {})
       headers = @headers.merge(headers || {})
 
       q = @query_defaults.dup
       q = q.merge(query) if query
 
-      resp = @adapter.call(url, q, headers, proxy)
+      resp = @adapter.get(url, q, headers)
 
-      resp = get_http(resp.headers['location'], nil, headers, proxy) if [301, 302, 307].include?(resp.code) && !@options[:no_follow_redirects]
+      resp = get_http(resp.headers['location'], nil, headers) if [301, 302, 307].include?(resp.status) && !@options[:no_follow_redirects]
       resp
     end
 
