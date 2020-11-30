@@ -135,9 +135,21 @@ module WCC::API
         query = extract_params(filters)
         query = (options[:query] || {}).merge(query)
         query = query.merge!(apply_filters(filters, options[:filters]))
-        resp = client.get(model.endpoint, query)
+        resp = client.get(endpoint, query)
         resp.assert_ok!
         resp.items.map { |s| model.new(s) }
+      end
+
+      def create(body)
+        resp = client.post(endpoint, body)
+        resp.assert_ok!
+        return true if resp.status == 204
+        return true unless resp.raw_body.present?
+
+        body = options[:key] ? resp.body[options[:key]] : resp.body
+        return true unless body.present?
+        
+        model.new(body, resp.headers.freeze)
       end
 
       protected
