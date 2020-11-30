@@ -54,6 +54,24 @@ module WCC::API
           headers: { 'Content-Type': 'application/json' }))
     end
 
+    def put(path, body = {})
+      url = URI.join(@api_url, path)
+
+      @response_class.new(self,
+        { url: url },
+        put_http(url,
+          body.to_json,
+          headers: { 'Content-Type': 'application/json' }))
+    end
+
+    def delete(path)
+      url = URI.join(@api_url, path)
+
+      @response_class.new(self,
+        { url: url },
+        delete_http(url))
+    end
+
     ADAPTERS = {
       faraday: ['faraday', '~> 0.9'],
       typhoeus: ['typhoeus', '~> 1.0']
@@ -113,6 +131,24 @@ module WCC::API
       resp
     end
 
+    def put_http(url, body, headers: {})
+      headers = @headers.merge(headers || {})
+
+      resp = @adapter.put(url, body, headers)
+
+      resp = get_http(resp.headers['location'], nil, headers) if [301, 302, 307].include?(resp.status) && !@options[:no_follow_redirects]
+      resp
+    end
+
+    def delete_http(url, headers: {})
+      headers = @headers.merge(headers || {})
+
+      resp = @adapter.delete(url, {}, headers)
+
+      resp = get_http(resp.headers['location'], nil, headers) if [301, 302, 307].include?(resp.status) && !@options[:no_follow_redirects]
+      resp
+    end
+
     class Resource
       attr_reader :client, :endpoint, :model, :options
 
@@ -143,16 +179,32 @@ module WCC::API
       def create(body)
         resp = client.post(endpoint, body)
         resp.assert_ok!
+        maybe_model_from_response(resp)
+      end
+
+      def update(id, body)
+        resp = client.put("#{endpoint}/#{id}", body)
+        resp.assert_ok!
+        maybe_model_from_response(resp)
+      end
+
+      def destroy(id)
+        resp = client.delete("#{endpoint}/#{id}")
+        resp.assert_ok!
+        maybe_model_from_response(resp)
+      end
+
+      protected
+
+      def maybe_model_from_response(resp)
         return true if resp.status == 204
         return true unless resp.raw_body.present?
 
         body = options[:key] ? resp.body[options[:key]] : resp.body
         return true unless body.present?
-        
+
         model.new(body, resp.headers.freeze)
       end
-
-      protected
 
       def extract_params(filters)
         filters.each_with_object({}) do |(k, _v), h|

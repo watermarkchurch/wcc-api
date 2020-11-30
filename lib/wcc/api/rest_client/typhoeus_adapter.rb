@@ -27,6 +27,25 @@ class WCC::API::RestClient::TyphoeusAdapter
     )
   end
 
+  def put(url, body, headers = {})
+    Response.new(
+      Typhoeus.put(
+        url,
+        body: body.is_a?(String) ? body : body.to_json,
+        headers: headers
+      )
+    )
+  end
+
+  def delete(url, query = {}, headers = {})
+    Response.new(
+      Typhoeus.delete(
+        url,
+        headers: headers
+      )
+    )
+  end
+
   class Response < SimpleDelegator
     def raw
       __getobj__

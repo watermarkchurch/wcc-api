@@ -261,6 +261,36 @@ RSpec.describe WCC::API::RestClient do
           expect(resp.status).to eq(204)
         end
       end
+
+      describe 'put' do
+        it 'performs a put with body' do
+          stub_request(:put, 'https://cdn.contentful.com/spaces/1234/entries/123')
+            .with(body: '{"test":"data"}')
+            .to_return(body: '{"test":"data"}')
+
+          # act
+          resp = client.put('entries/123', { 'test' => 'data' })
+
+          # assert
+          resp.assert_ok!
+          expect(resp.status).to eq(200)
+          expect(resp.body).to eq({ 'test' => 'data' })
+        end
+      end
+
+      describe 'delete' do
+        it 'performs a delete' do
+          stub_request(:delete, 'https://cdn.contentful.com/spaces/1234/entries/123')
+            .to_return(status: 204)
+
+          # act
+          resp = client.delete('entries/123')
+
+          # assert
+          resp.assert_ok!
+          expect(resp.status).to eq(204)
+        end
+      end
     end
   end
 end
