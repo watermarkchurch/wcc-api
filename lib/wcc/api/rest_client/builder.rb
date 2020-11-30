@@ -9,9 +9,21 @@ module WCC::API
         @params = params.map(&:to_s)
       end
 
-      def resource(endpoint, model:, **options)
+      attr_writer :resource_class
+      def resource_class
+        @resource_class ||=
+          @klass.const_get("Resource") || WCC::API::RestClient::Resource
+      end
+
+      def resource(endpoint, model:, **options, &block)
         @resources ||= {}
+
+        resource_class = options[:resource_class] || self.resource_class
+        if block_given?
+          resource_class = Class.new(resource_class, &block)
+        end
         @resources[endpoint] = options.merge({
+          resource_class: resource_class,
           model: model,
         })
       end
@@ -36,12 +48,12 @@ module WCC::API
 
           resources.each do |(endpoint, options)|
             attr_name = options[:attribute] || endpoint.downcase
+            resource_class = options[:resource_class]
 
             define_method attr_name do
               instance_variable_get("@#{attr_name}") ||
                 instance_variable_set("@#{attr_name}", 
-                  (self.class.const_get("Resource") || WCC::API::RestClient::Resource)
-                    .new(self, endpoint, options[:model], @options.merge(options))
+                  resource_class.new(self, endpoint, options[:model], @options.merge(options))
                 )
             end
           end
