@@ -36,21 +36,6 @@ RSpec.describe WCC::API::RestClient do
       end.to raise_error(ArgumentError)
     end
 
-    it 'loads proc as adapter' do
-      described_class::ADAPTERS = {}.freeze
-      resp = double(body: 'test body', code: 200)
-
-      # act
-      client = described_class.new(
-        api_url: 'https://cdn.contentful.com',
-        adapter: proc { resp }
-      )
-      resp = client.get('http://asdf.com')
-
-      # assert
-      expect(resp.raw_body).to eq('test body')
-    end
-
     it 'fails to load when adapter is not invokeable' do
       described_class::ADAPTERS = {}.freeze
 
@@ -259,6 +244,51 @@ RSpec.describe WCC::API::RestClient do
                      6xJzDTX2HCo0u4QKIuGCOu
                      5yozzvgItUSYu4eI8yQ0ee
                    ])
+        end
+      end
+
+      describe 'post' do
+        it 'performs a post with body' do
+          stub_request(:post, 'https://cdn.contentful.com/spaces/1234/entries')
+            .with(body: '{"test":"data"}')
+            .to_return(status: 204)
+
+          # act
+          resp = client.post('entries', { 'test' => 'data' })
+
+          # assert
+          resp.assert_ok!
+          expect(resp.status).to eq(204)
+        end
+      end
+
+      describe 'put' do
+        it 'performs a put with body' do
+          stub_request(:put, 'https://cdn.contentful.com/spaces/1234/entries/123')
+            .with(body: '{"test":"data"}')
+            .to_return(body: '{"test":"data"}')
+
+          # act
+          resp = client.put('entries/123', { 'test' => 'data' })
+
+          # assert
+          resp.assert_ok!
+          expect(resp.status).to eq(200)
+          expect(resp.body).to eq({ 'test' => 'data' })
+        end
+      end
+
+      describe 'delete' do
+        it 'performs a delete' do
+          stub_request(:delete, 'https://cdn.contentful.com/spaces/1234/entries/123')
+            .to_return(status: 204)
+
+          # act
+          resp = client.delete('entries/123')
+
+          # assert
+          resp.assert_ok!
+          expect(resp.status).to eq(204)
         end
       end
     end

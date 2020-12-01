@@ -13,7 +13,8 @@ module WCC::API
       attr_reader :client
       attr_reader :request
 
-      def_delegators :raw_response, :code, :headers
+      def_delegators :raw_response, :status, :headers
+      alias_method :code, :status
 
       def body
         @body ||= ::JSON.parse(raw_body)

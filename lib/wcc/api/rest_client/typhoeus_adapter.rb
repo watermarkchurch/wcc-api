@@ -4,31 +4,60 @@ require 'forwardable'
 gem 'typhoeus'
 require 'typhoeus'
 
-module WCC::API
-  class RestClient
-    class TyphoeusAdapter
-      def call(url, query, headers = {}, proxy = {})
-        raise NotImplementedError, 'Proxying Not Yet Implemented' if proxy[:host]
+class WCC::API::RestClient::TyphoeusAdapter
+  def get(url, params = {}, headers = {})
+    req = OpenStruct.new(params: params, headers: headers)
+    yield req if block_given?
+    Response.new(
+      Typhoeus.get(
+        url,
+        params: req.params,
+        headers: req.headers
+      )
+    )
+  end
 
-        TyphoeusAdapter::Response.new(
-          Typhoeus.get(
-            url,
-            params: query,
-            headers: headers
-          )
-        )
-      end
+  def post(url, body, headers = {})
+    Response.new(
+      Typhoeus.post(
+        url,
+        body: body.is_a?(String) ? body : body.to_json,
+        headers: headers
+      )
+    )
+  end
 
-      Response =
-        Struct.new(:raw) do
-          extend Forwardable
+  def put(url, body, headers = {})
+    Response.new(
+      Typhoeus.put(
+        url,
+        body: body.is_a?(String) ? body : body.to_json,
+        headers: headers
+      )
+    )
+  end
 
-          def_delegators :raw, :body, :to_s, :code, :headers
+  def delete(url, query = {}, headers = {})
+    Response.new(
+      Typhoeus.delete(
+        url,
+        headers: headers
+      )
+    )
+  end
 
-          def status
-            raw.code
-          end
-        end
+  class Response < SimpleDelegator
+    def raw
+      __getobj__
+    end
+
+    def to_s
+      body&.to_s
+    end
+
+    def status
+      code
     end
   end
 end
+
