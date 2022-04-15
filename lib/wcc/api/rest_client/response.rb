@@ -64,11 +64,11 @@ module WCC::API
       def next_page
         return unless next_page?
 
-        @next_page ||= @client.get(
+        next_page ||= @client.get(
           @request[:url],
           (@request[:query] || {}).merge(next_page_query)
         )
-        @next_page.assert_ok!
+        next_page.assert_ok!
       end
 
       def assert_ok!
