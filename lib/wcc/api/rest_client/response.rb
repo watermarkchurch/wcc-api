@@ -81,16 +81,7 @@ module WCC::API
       def each_page(&block)
         raise ArgumentError, 'Not a collection response' unless collection_response?
 
-        ret =
-          Enumerator.new do |y|
-            y << self
-
-            if next_page?
-              next_page.each_page.each do |page|
-                y << page
-              end
-            end
-          end
+        ret = PaginatingEnumerable.new(self)
 
         if block_given?
           ret.map(&block)
@@ -131,6 +122,26 @@ module WCC::API
 
       def page_items
         body['items']
+      end
+    end
+
+    class PaginatingEnumerable
+      include Enumerable
+  
+      def initialize(initial_page)
+        raise ArgumentError, 'Must provide initial page' unless initial_page.present?
+  
+        @initial_page = initial_page
+      end
+  
+      def each
+        page = @initial_page
+        yield page
+  
+        while page.next_page?
+          page = page.next_page
+          yield page
+        end
       end
     end
   end
