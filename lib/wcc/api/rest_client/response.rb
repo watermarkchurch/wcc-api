@@ -129,7 +129,7 @@ module WCC::API
       include Enumerable
   
       def initialize(initial_page)
-        raise ArgumentError, 'Must provide initial page' unless initial_page.present?
+        raise ArgumentError, 'Must provide initial page' unless initial_page
   
         @initial_page = initial_page
       end
