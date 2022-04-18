@@ -21,7 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'wcc-base'
 
-  spec.add_development_dependency 'bundler', '~> 1.6'
   spec.add_development_dependency 'dotenv', '~> 0.10.0'
   spec.add_development_dependency 'faraday', '~> 0.9'
   spec.add_development_dependency 'guard', '~> 2.15'

@@ -1,0 +1,30 @@
+image:
+  file: .gitpod.Dockerfile
+tasks:
+  - init: |
+      bundle install
+    command: |
+      bundle exec guard -g autofix red_green_refactor
+
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
+    - wingrunr21.vscode-ruby
+    - ms-azuretools.vscode-docker
+
+github:
+  prebuilds:
+    # enable for the default branch (defaults to true)
+    master: true
+    # enable for all branches in this repo (defaults to false)
+    branches: false
+    # enable for pull requests coming from this repo (defaults to true)
+    pullRequests: false
+    # enable for pull requests coming from forks (defaults to false)
+    pullRequestsFromForks: false
+    # add a check to pull requests (defaults to true)
+    addCheck: true
+    # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
+    addComment: false
+    # add a "Review in Gitpod" button to the pull request's description (defaults to false)
+    addBadge: false
