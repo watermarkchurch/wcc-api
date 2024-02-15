@@ -11,7 +11,7 @@ module WCC::API
         expires_in expiry, options.slice(:public, :must_revalidate)
       end
 
-      fresh_when scope_or_record, options.slice(:etag, :public, :last_modified)
+      fresh_when(scope_or_record, **options.slice(:etag, :public, :last_modified))
     end
   end
 end
